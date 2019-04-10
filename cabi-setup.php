@@ -76,8 +76,8 @@ class CabiSetup {
 
         add_action('after_setup_theme', 'set_custom_sizes_to_images');
         function set_custom_sizes_to_images() {
-            add_image_size('hero_image', 1920, 600, array('center', 'top'));
-            add_image_size('hero_image_full', 1920, 9999);
+            add_image_size('hero_image', 1920, 600, array('center', 'top')); /* crop */
+            add_image_size('hero_image_full', 1920, 9999); /* resize */
         }
         add_filter( 'image_size_names_choose', 'add_custom_sizes_to_images' );
         function add_custom_sizes_to_images($sizes) {
