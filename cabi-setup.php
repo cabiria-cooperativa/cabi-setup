@@ -21,16 +21,30 @@ class CabiSetup {
         //$this->cpt_name = self::SLUG;
         //$this->cpt_slug = self::SLUG;
 
-		//add_action('init', array($this, 'add_cpt'), 0);             	/* aggiungo un custom post type         */
-        add_action('wp_enqueue_scripts', array($this, 'init'));     	/* accodo js e css                      */
-        add_action('admin_menu', array($this, 'add_settings_page'));    /* creo una pagina di impostazioni      */
+		//add_action('init', array($this, 'add_cpt'), 0);   	
+        add_action('wp_enqueue_scripts', array($this, 'init'));
+        add_action('admin_menu', array($this, 'add_settings_page'));
+
+        add_action('wp_head', function() {
+            ?>
+            <link rel='dns-prefetch' href='//www.googletagmanager.com'>
+            <link rel='preconnect' href='https://www.googletagmanager.com'>
+            <link rel='preconnect' href='https://fonts.googleapis.com'>
+            <?php
+        }, 1);
+
+        /* rimuovo i pingback interni tra articoli */
+        add_action('pre_ping', array($this,'disable_self_pingbacks'));
 		
 		/* nascondo gli errori al login */
 		add_filter('login_errors', '__return_false');
 		add_filter('login_messages', '__return_false');
 		
 		/* rimuovo la versione di WordPress */
-		remove_action('wp_head', 'wp_generator');
+        remove_action('wp_head', 'wp_generator');
+        
+        /* ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stuli */
+        //add_action('init', array($this,'remove_query_strings'));
 
         /* azioni ajax */
         add_action('wp_ajax_nopriv_hello_world_ajax', array($this, 'hello_world_ajax'));
@@ -62,14 +76,36 @@ class CabiSetup {
 
         add_action('after_setup_theme', 'set_custom_sizes_to_images');
         function set_custom_sizes_to_images() {
-            add_image_size('hero_image', 1920, 600, array('center', 'center'));
+            add_image_size('hero_image', 1920, 600, array('center', 'top'));
+            add_image_size('hero_image_full', 1920, 9999);
         }
         add_filter( 'image_size_names_choose', 'add_custom_sizes_to_images' );
         function add_custom_sizes_to_images($sizes) {
             return array_merge( $sizes, array(
-                'hero_image' => __('Hero image'),
+                'hero_image' => __('Hero image 1920 x 600'),
             ) );
         }
+        add_filter('wp_get_attachment_image_attributes', 'set_responsive_sizes', 10 , 3);
+        function set_responsive_sizes ($attr, $attachment, $size) {
+            if ($size === 'hero_image') {
+                $image = wp_get_attachment_image_src($attachment->ID, 'hero_image');
+                $attr['srcset'] = wp_get_attachment_image_srcset($attachment->ID) . ', ' . $image[0] . ' 1920w';
+                $attr['sizes'] = '(min-width: 1200px) 1920px, (min-width: 1024px) 1024px, (min-width: 768px) 768px, (min-width: 400px) 768px, 300px';
+            } elseif ($size === 'full') {
+                $image = wp_get_attachment_image_src($attachment->ID, 'hero_image_full');
+                $attr['srcset'] = wp_get_attachment_image_srcset($attachment->ID) . ', ' . $image[0] . ' 1920w';
+                $attr['sizes'] = '(min-width: 1200px) 1920px, (min-width: 1024px) 1024px, (min-width: 768px) 768px, (min-width: 400px) 768px, 300px';
+            } else {
+                $attr['srcset'] = wp_get_attachment_image_srcset($attachment->ID);
+                $attr['sizes'] = '(min-width: 1200px) 100vw, (min-width: 1024px) 1024px, (min-width: 768px) 768px, (min-width: 400px) 768px, 300px';
+            }
+            return $attr;
+        }
+        add_filter('max_srcset_image_width', 'max_srcset_dimension');
+        function max_srcset_dimension($max_srcset_dimension) {
+            return 1920;
+        }
+        
 
         /**
         * Modifico lo slug di default per le categorie
@@ -255,6 +291,26 @@ class CabiSetup {
             </form>
         </div>
         <?php
+    }
+
+    /* rimuovo i pingback interni tra articoli */
+    function disable_self_pingbacks(&$links) {
+        foreach ($links as $l => $link) {
+            if (0 === strpos($link, get_option('home'))) unset($links[$l]);
+        }
+    }
+
+    function remove_query_strings() {
+        if (!is_admin()) {
+            add_filter('script_loader_src', array($this, 'remove_query_strings_split'), 15);
+            add_filter('style_loader_src', array($this, 'remove_query_strings_split'), 15);
+        }
+    }
+
+    function remove_query_strings_split($src) {
+        $output = preg_split("/(&ver|\?ver)/", $src);
+        return $output[0];
+    
     }
 
 }
