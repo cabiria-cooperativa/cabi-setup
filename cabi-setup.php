@@ -21,7 +21,7 @@ class CabiSetup {
         //$this->cpt_name = self::SLUG;
         //$this->cpt_slug = self::SLUG;
 
-		//add_action('init', array($this, 'add_cpt'), 0);   	
+        //add_action('init', array($this, 'add_cpt'), 0);   	
         add_action('wp_enqueue_scripts', array($this, 'init'));
         add_action('admin_menu', array($this, 'add_settings_page'));
 
@@ -43,7 +43,7 @@ class CabiSetup {
 		/* rimuovo la versione di WordPress */
         remove_action('wp_head', 'wp_generator');
         
-        /* ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stuli */
+        /* ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
         //add_action('init', array($this,'remove_query_strings'));
 
         /* azioni ajax */
@@ -147,13 +147,64 @@ class CabiSetup {
 
     }
 
+    private function get_base_path() {
+        require_once (ABSPATH . 'wp-admin/includes/file.php');
+        return get_home_path();
+    }
+
+    private function get_htaccess_ruleset() {
+        $htaccess_ruleset = plugin_dir_url( __FILE__ ) . 'assets/htaccess/htaccess.txt';
+        return @file_get_contents($htaccess_ruleset);
+    }
+
+    private function get_htaccess_contents() {
+        $fp = fopen($this->get_base_path() . '/.htaccess', 'r');
+        if (!$fp) return false;
+        $contents = fread($fp, filesize($this->get_base_path() . '/.htaccess'));
+        fclose($fp);
+        return $contents;
+    }
+
+    private function set_htaccess_contents($contents, $ruleset = '') {
+        $fp = fopen($this->get_base_path() . '/.htaccess', 'w');
+        if (!$fp) return false;
+        if ($ruleset) fwrite($fp, $ruleset . "\n\n");
+        fwrite($fp, $contents);
+        fclose($fp);
+    }
+
     function activation(){
         //$this->add_settings();
+        
+        $path = $this->get_base_path();
+        /* eseguo una copia di sicurezza dell'htaccess */
+        $result = copy($path . '/.htaccess', $path . '/.htaccess' . '.backup_cabi_' . date('Ymd_Hi'));
+        if ($result === true) {
+            /* recupero le regole da aggiungere all'htaccess */
+            $ruleset = $this->get_htaccess_ruleset();
+            if ($ruleset === false) return;
+            /* apro il file .htaccess in lettura */
+            $contents = $this->get_htaccess_contents();
+            /* aggiungo le regole in cima al file */
+            if ($contents === false) return;
+            $this->set_htaccess_contents($contents, $ruleset);
+        }
     }
 
     function deactivation(){
 		//$this->remove_cpt();
         //$this->remove_settings();
+
+        /* recupero le regole da rimuovere dall'htaccess */
+        $ruleset = $this->get_htaccess_ruleset();
+        if ($ruleset === false) return;
+        /* apro il file .htaccess in lettura */
+        $contents = $this->get_htaccess_contents();
+        if ($contents === false) return;
+        /* rimuovo le regole */
+        $contents = str_replace($ruleset, '', $contents);
+        /* aggiorno l'htaccess */
+        $this->set_htaccess_contents($contents);
 	  }
 
     function init() {
