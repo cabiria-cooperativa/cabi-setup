@@ -31,8 +31,12 @@ class CabiSetup {
         add_action('pre_ping', array($this,'disable_self_pingbacks'));
 		
 		/* nascondo gli errori al login */
-		add_filter('login_errors', '__return_false');
-		add_filter('login_messages', '__return_false');
+		add_filter('login_errors', function(){
+            return "Il silenzio è d'oro.";
+        });
+		add_filter('login_messages', function(){
+            return "Il silenzio è d'oro.";
+        });
 		
 		/* rimuovo la versione di WordPress */
         remove_action('wp_head', 'wp_generator');
