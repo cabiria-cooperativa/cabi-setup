@@ -19,6 +19,20 @@ order deny,allow
 deny from all
 </files>
 
+# impedisce l'accesso ai file readme
+<files readme.html>
+order allow, deny
+deny from all
+</files>
+<files license.txt>
+order allow, deny
+deny from all
+</files>
+<files licenza.html>
+order allow, deny
+deny from all
+</files>
+
 # impedisce l'enumerazione degli utenti
 <IfModule mod_rewrite.c>
 RewriteEngine On
