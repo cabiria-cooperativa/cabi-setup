@@ -11,7 +11,7 @@ satisfy all
 <files wp-config.php>
 order allow,deny
 deny from all
-</Files>
+</files>
 
 # impedisce l'accesso a xmlrpc
 <files xmlrpc.php>

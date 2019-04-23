@@ -37,6 +37,14 @@ class CabiSetup {
 		add_filter('login_messages', function(){
             return "Il silenzio è d'oro.";
         });
+
+        /* disabilito le REST API */
+        add_filter('json_enabled', function(){
+            return false;
+        });
+        add_filter('json_jsonp_enabled', function(){
+            return false;
+        });
 		
 		/* rimuovo la versione di WordPress */
         remove_action('wp_head', 'wp_generator');
