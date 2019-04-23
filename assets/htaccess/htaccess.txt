@@ -21,15 +21,15 @@ deny from all
 
 # impedisce l'accesso ai file readme
 <files readme.html>
-order allow, deny
+order allow,deny
 deny from all
 </files>
 <files license.txt>
-order allow, deny
+order allow,deny
 deny from all
 </files>
 <files licenza.html>
-order allow, deny
+order allow,deny
 deny from all
 </files>
 
