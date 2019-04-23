@@ -16,6 +16,10 @@ class CabiSetup {
 
     function __construct() {
 
+        /* ============= ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
+        add_action('init', array($this,'remove_query_strings'));
+        /* ============= ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
+
         add_action('wp_enqueue_scripts', array($this, 'init'));
         add_action('admin_menu', array($this, 'add_settings_page'));
 
@@ -48,9 +52,6 @@ class CabiSetup {
 		
 		/* rimuovo la versione di WordPress */
         remove_action('wp_head', 'wp_generator');
-        
-        /* ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
-        //add_action('init', array($this,'remove_query_strings'));
 
         /* azioni ajax */
         add_action('wp_ajax_nopriv_hello_world_ajax', array($this, 'hello_world_ajax'));
@@ -151,6 +152,22 @@ class CabiSetup {
             return $link;
         }
 
+        //rimuove la versione di WordPress
+        add_filter('script_loader_src', array($this, 'remove_wp_version_strings'));
+        add_filter('style_loader_src',  array($this, 'remove_wp_version_strings'));
+        add_filter('the_generator', function() {
+            return '';
+        });
+
+    }
+
+    function remove_wp_version_strings($src) {
+        global $wp_version;
+        parse_str(parse_url($src, PHP_URL_QUERY), $query);
+        if (!empty($query['ver']) && $query['ver'] === $wp_version) {
+            $src = remove_query_arg('ver', $src);
+        }
+        return $src;
     }
 
     private function get_base_path() {
