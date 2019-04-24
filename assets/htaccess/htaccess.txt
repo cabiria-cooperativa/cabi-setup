@@ -1,24 +1,20 @@
 # CABI_SETUP - START #################################
-
 # impedisce l'accesso ad htaccess
 <files ~ "^.*\.([Hh][Tt][Aa])">
 order allow,deny
 deny from all
 satisfy all
 </files>
-
 # impedisce l'accesso a wp-config
 <files wp-config.php>
 order allow,deny
 deny from all
 </files>
-
 # impedisce l'accesso a xmlrpc
 <files xmlrpc.php>
 order deny,allow
 deny from all
 </files>
-
 # impedisce l'accesso ai file readme
 <files readme.html>
 order allow,deny
@@ -32,14 +28,12 @@ deny from all
 order allow,deny
 deny from all
 </files>
-
 # impedisce l'enumerazione degli utenti
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{QUERY_STRING} (^|&)author=
 RewriteRule . http://%{SERVER_NAME}/? [L]
 </IfModule>
-
 # protegge la cartella wp-includes
 <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -50,7 +44,6 @@ RewriteRule ^wp-includes/[^/]+.php$ - [F,L]
 RewriteRule ^wp-includes/js/tinymce/langs/.+.php - [F,L]
 RewriteRule ^wp-includes/theme-compat/ - [F,L]
 </IfModule>
-
 # impedisce l'hotlinking delle risorse
 RewriteCond %{HTTP_REFERER} !^$
 RewriteCond %{HTTP_REFERER} !^http(s)?://%{SERVER_NAME} [NC]
@@ -58,7 +51,6 @@ RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?google.com [NC]
 RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?bing.com [NC]
 RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?yahoo.com [NC]
 RewriteRule \.(jpg|jpeg|png|gif|svg)$ - [NC,R,L]
-
 # compressione GZIP
 AddOutputFilterByType DEFLATE text/plain
 AddOutputFilterByType DEFLATE text/html
@@ -70,7 +62,6 @@ AddOutputFilterByType DEFLATE application/rss+xml
 AddOutputFilterByType DEFLATE application/javascript
 AddOutputFilterByType DEFLATE application/x-javascript
 ## ENABLE GZIP COMPRESSION ##
-
 # scadenza cache
 <IfModule mod_expires.c>
 ExpiresActive On
@@ -86,6 +77,4 @@ ExpiresByType application/x-shockwave-flash "access 1 month"
 ExpiresByType image/x-icon "access 1 year"
 ExpiresDefault "access 2 days"
 </IfModule>
-
 # CABI_SETUP - END ##################################
-

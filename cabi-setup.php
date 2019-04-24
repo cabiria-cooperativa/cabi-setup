@@ -191,7 +191,30 @@ class CabiSetup {
     private function set_htaccess_contents($contents, $ruleset = '') {
         $fp = fopen($this->get_base_path() . '/.htaccess', 'w');
         if (!$fp) return false;
-        if ($ruleset) fwrite($fp, $ruleset . "\n\n");
+        if ($ruleset) fwrite($fp, $ruleset . "\n");
+        fwrite($fp, $contents);
+        fclose($fp);
+    }
+
+    private function get_wpconfig_ruleset() {
+        $wpconfig_ruleset = plugin_dir_url( __FILE__ ) . 'assets/wpconfig/wpconfig.txt';
+        return @file_get_contents($wpconfig_ruleset);
+    }
+
+    private function get_wpconfig_contents() {
+        $fp = fopen($this->get_base_path() . '/wp-config.php', 'r');
+        if (!$fp) return false;
+        $contents = fread($fp, filesize($this->get_base_path() . '/wp-config.php'));
+        fclose($fp);
+        return $contents;
+    }
+
+    private function set_wpconfig_contents($contents, $ruleset = '') {
+        $fp = fopen($this->get_base_path() . '/wp-config.php', 'w');
+        if (!$fp) return false;
+        if ($ruleset) {
+            $contents = str_replace("define('WP_DEBUG', false);", "define('WP_DEBUG', false);\n$ruleset", $contents);
+        }
         fwrite($fp, $contents);
         fclose($fp);
     }
@@ -200,6 +223,7 @@ class CabiSetup {
         $this->add_settings();
         
         $path = $this->get_base_path();
+        
         /* eseguo una copia di sicurezza dell'htaccess */
         $result = copy($path . '/.htaccess', $path . '/.htaccess' . '.backup_cabi_' . date('Ymd_Hi'));
         if ($result === true) {
@@ -211,6 +235,16 @@ class CabiSetup {
             /* aggiungo le regole in cima al file */
             if ($contents === false) return;
             $this->set_htaccess_contents($contents, $ruleset);
+        }
+
+        /* eseguo una copia di sicurezza del wp-config.php */
+        $result = copy($path . '/wp-config.php', $path . '/wp-config' . '.backup_cabi_' . date('Ymd_Hi'));
+        if ($result === true) {
+            $ruleset = $this->get_wpconfig_ruleset();
+            if ($ruleset === false) return;
+            $contents = $this->get_wpconfig_contents();
+            if ($contents === false) return;
+            $this->set_wpconfig_contents($contents, $ruleset);
         }
     }
 
@@ -224,9 +258,17 @@ class CabiSetup {
         $contents = $this->get_htaccess_contents();
         if ($contents === false) return;
         /* rimuovo le regole */
-        $contents = str_replace($ruleset, '', $contents);
+        $contents = str_replace($ruleset . "\n", '', $contents);
         /* aggiorno l'htaccess */
         $this->set_htaccess_contents($contents);
+
+        $ruleset = $this->get_wpconfig_ruleset();
+        if ($ruleset === false) return;
+        $contents = $this->get_wpconfig_contents();
+        if ($contents === false) return;
+        $contents = str_replace("\n".$ruleset, '', $contents);
+        $this->set_wpconfig_contents($contents);
+
 	  }
 
     function init() {

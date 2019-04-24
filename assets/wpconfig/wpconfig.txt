@@ -1,0 +1,6 @@
+/* CABI_SETUP - START ################################# */
+define('AUTOSAVE_INTERVAL', 300);
+define('WP_POST_REVISIONS', 7);
+define('EMPTY_TRASH_DAYS', 15);
+define('DISALLOW_FILE_EDIT', true);
+/* CABI_SETUP - END ################################### */
