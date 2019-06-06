@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Cabiria theme setup
  * Plugin URI: https://www.cabiria.net
- * Description: Impostazioni per il tema Cabi
- * Version: 1.0.0
+ * Description: Impostazioni per il tema Cabi. Modificare la costante RECOVERY_MODE_EMAIL in assets/wpconfig/wpconfig.txt
+ * Version: 1.0.1
  * Author: Simone Alati
  * Author URI: https://www.cabiria.net
  * Text Domain: cabi
@@ -17,7 +17,7 @@ class CabiSetup {
     function __construct() {
 
         /* ============= ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
-        add_action('init', array($this,'remove_query_strings'));
+        //add_action('init', array($this,'remove_query_strings'));
         /* ============= ATTIVARE SOLO IN PRODUZIONE - rimuovo il parametro di versione da script e stili */
 
         add_action('wp_enqueue_scripts', array($this, 'init'));
