@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cabiria theme setup
- * Plugin URI: https://www.cabiria.net
- * Description: Impostazioni per il tema Cabi. Modificare la costante RECOVERY_MODE_EMAIL in assets/wpconfig/wpconfig.txt
+ * Plugin URI: https://github.com/cabiria-cooperativa/cabi-setup
+ * Description: Impostazioni per temi WordPress. Modificare la costante RECOVERY_MODE_EMAIL in assets/wpconfig/wpconfig.txt
  * Version: 1.0.1
  * Author: Simone Alati
  * Author URI: https://www.cabiria.net
